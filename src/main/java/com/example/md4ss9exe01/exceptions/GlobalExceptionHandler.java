@@ -14,48 +14,50 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Object>>
-    handleValidation(MethodArgumentNotValidException ex) {
-
-        Map<String, String> errors = new HashMap<>();
-
-        for (FieldError error :
-                ex.getBindingResult().getFieldErrors()) {
-
-            errors.put(
-                    error.getField(),
-                    error.getDefaultMessage()
-            );
-        }
-
-        ApiResponse<Object> response =
-                new ApiResponse<>(
-                        "FAIL",
-                        "Dữ liệu không hợp lệ",
-                        errors
-                );
-
-        return new ResponseEntity<>(
-                response,
-                HttpStatus.BAD_REQUEST
-        );
+    public ResponseEntity<ApiResponse<Map<String,String>>> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception){
+        Map<String,String> map = new HashMap<>();
+        exception.getBindingResult().getAllErrors().forEach(e -> {
+            String fieldName = ((FieldError) e).getField();
+            String value = e.getDefaultMessage();
+            map.put(fieldName, value );
+        });
+        ApiResponse<Map<String,String>> apiResponse = new ApiResponse<>();
+        apiResponse.setData(map);
+        apiResponse.setStatus("FAIL");
+        apiResponse.setMessage("Dữ liệu không hợp lệ");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class )
+    public ResponseEntity<ApiResponse<Map<String,String>>> handleResourceNotFoundException(ResourceNotFoundException exception){
+        Map<String,String> map = new HashMap<>();
+        map.put("message", exception.getMessage());
+        ApiResponse<Map<String,String>> apiResponse = new ApiResponse<>();
+        apiResponse.setData(map);
+        apiResponse.setStatus("FAIL");
+        apiResponse.setMessage("Dữ liệu không hợp lệ");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiResponse);
+    }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Object>>
-    handleException(Exception ex) {
+    @ExceptionHandler(DuplicateException.class )
+    public ResponseEntity<ApiResponse<Map<String,String>>> handleDuplicateException(DuplicateException exception){
+        Map<String,String> map = new HashMap<>();
+        map.put("message", exception.getMessage());
+        ApiResponse<Map<String,String>> apiResponse = new ApiResponse<>();
+        apiResponse.setData(map);
+        apiResponse.setStatus("FAIL");
+        apiResponse.setMessage("Dữ liệu trùng lặp");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(apiResponse);
+    }
 
-        ApiResponse<Object> response =
-                new ApiResponse<>(
-                        "FAIL",
-                        "Internal Server Error",
-                        null
-                );
-
-        return new ResponseEntity<>(
-                response,
-                HttpStatus.INTERNAL_SERVER_ERROR
-        );
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ApiResponse<Map<String,String>>> handleCustomException(CustomException exception){
+        Map<String,String> map = new HashMap<>();
+        map.put("message", exception.getMessage());
+        ApiResponse<Map<String,String>> apiResponse = new ApiResponse<>();
+        apiResponse.setData(map);
+        apiResponse.setStatus("FAIL");
+        apiResponse.setMessage("Lỗi hệ thống");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
     }
 }
