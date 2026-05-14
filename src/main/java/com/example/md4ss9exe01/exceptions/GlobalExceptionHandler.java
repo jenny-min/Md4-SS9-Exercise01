@@ -1,26 +1,39 @@
 package com.example.md4ss9exe01.exceptions;
 
-import jakarta.servlet.http.HttpServletRequest;
+import com.example.md4ss9exe01.responses.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidation(
-            MethodArgumentNotValidException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Object>>
+    handleValidation(MethodArgumentNotValidException ex) {
 
-        String message = ex.getBindingResult()
-                .getFieldError()
-                .getDefaultMessage();
+        Map<String, String> errors = new HashMap<>();
 
-        ErrorResponse response =
-                new ErrorResponse(LocalDateTime.now(), 400, message, request.getRequestURI());
+        for (FieldError error :
+                ex.getBindingResult().getFieldErrors()) {
+
+            errors.put(
+                    error.getField(),
+                    error.getDefaultMessage()
+            );
+        }
+
+        ApiResponse<Object> response =
+                new ApiResponse<>(
+                        "FAIL",
+                        "Dữ liệu không hợp lệ",
+                        errors
+                );
 
         return new ResponseEntity<>(
                 response,
@@ -28,11 +41,17 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(
-            Exception ex, HttpServletRequest request) {
 
-        ErrorResponse response = new ErrorResponse(LocalDateTime.now(), 500, "Internal Server Error", request.getRequestURI());
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<Object>>
+    handleException(Exception ex) {
+
+        ApiResponse<Object> response =
+                new ApiResponse<>(
+                        "FAIL",
+                        "Internal Server Error",
+                        null
+                );
 
         return new ResponseEntity<>(
                 response,
