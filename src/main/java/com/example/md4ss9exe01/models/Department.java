@@ -3,6 +3,7 @@ package com.example.md4ss9exe01.models;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "departments")
 public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
