@@ -20,16 +20,19 @@ public class Employee {
     @JoinColumn(name = "department_id")
     private Department department;
 
+    private String avatarUrl ;
+
     public Employee() {
     }
 
-    public Employee(Long id, String fullName, String email, String phone, double salary, Department department) {
+    public Employee(Long id, String fullName, String email, String phone, double salary, Department department, String avatarUrl) {
         this.id = id;
         this.fullName = fullName;
         this.email = email;
         this.phone = phone;
         this.salary = salary;
         this.department = department;
+        this.avatarUrl = avatarUrl;
     }
 
     public Long getId() {
@@ -56,6 +59,8 @@ public class Employee {
         return department;
     }
 
+    public String getAvatarUrl() {return avatarUrl;}
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -78,5 +83,9 @@ public class Employee {
 
     public void setDepartment(Department department) {
         this.department = department;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 }
